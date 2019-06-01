@@ -1,23 +1,31 @@
-int birthdayParty(vector<int> &A, 
-int n, const vector<int> &B, const vector<int> &C) {
-    if(n == A.size())
-        return 0;
-        
-    if(A[n] == 0)
-        return birthdayParty(A, n + 1, B, C);
-    int ans = INT_MAX;    
-    for(int i = 0; i<B.size(); i++) {
-        if(B[i] <= A[n]) {
-            A[n] -= B[i];
-            ans = min(ans, C[i] + birthdayParty(A, n, B, C));
-            A[n] += B[i];
+int Solution::solve(const vector<int> &A, const vector<int> &cap, const vector<int> &cost) {
+    int mx = INT_MIN;
+    for(int i = 0; i < A.size(); i++)
+        mx = max(mx, A[i]);
+    int n = cost.size();   
+    vector<vector<int>> dp(n + 1, vector<int>(mx + 1));    
+    for(int i = 0; i <= n; i++) {
+        for(int j = 0; j <= mx; j++) {
+            if(j == 0) {
+                dp[i][j] = 0;
+            }
+            else if(i == 0) {
+                dp[i][j] = 1e6;
+            }
+            else {
+                if(cap[i - 1] <= j) {
+                    dp[i][j] = min(dp[i - 1][j], cost[i - 1] + dp[i][j - cap[i - 1]]);
+                }
+                else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
         }
     }
-    return ans;
-}
-
-int Solution::solve(const vector<int> &A, const vector<int> &B, const vector<int> &C) {
-    vector<int> v = A;
-    return birthdayParty(v, 0, B, C);
+    int ret = 0;
+    for(int i = 0; i < A.size(); i++) {
+        ret += dp[n][A[i]];
+    }
+    return ret;
 }
 
