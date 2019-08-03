@@ -1,44 +1,32 @@
-bool search(string A, vector<string> B){
-    for(int i = 0; i < B.size(); i++){
-        if(B[i] == A){
-            return true;
-        }
-    }
-    return false;
-}
-
-
-int word(string A, int i,  vector<string>& B, vector<int>& dp) {
-    if(i == A.size())
-        return 1;
+bool f(string s, unordered_set<string>& st, int i, vector<int>& dp) {
+    if(i == s.size())
+        return true;
     if(dp[i] != -1)
         return dp[i];
-    // bool ans = false;    
-    for(int k = i + 1; k < A.size(); k++) {
-        string curr = A.substr(i, k - i + 1);
-        if(search(curr, B)) {
-            if(word(A, k + 1, B, dp))
-                return dp[i] = 1;
+    bool ans = false;
+    for(int j = i; j < s.size(); j++) {
+        if(st.find(s.substr(i, j - i + 1)) != st.end()) {
+            ans |= f(s, st, j + 1, dp);
         }
     }
-    return dp[i] = 0;
+    return dp[i] = ans;
 }
 
 int Solution::wordBreak(string A, vector<string> &B) {
-    int n = A.size();
- 
-    vector<int> temp(n+1, 0);
-    temp[n] = 1;
-    
-    for(int i = n-1; i >= 0; i--){
-        for(int j = i; j < n; j++){
-            string s = A.substr(i, j-i+1);
-            if(search(s, B) && temp[j+1] == 1){
-                temp[i] = 1;
+    vector<int> dp(A.size() + 1, 0);
+    unordered_set<string> st;
+    for(string s : B)
+        st.insert(s);   
+    for(int i = A.size() - 1; i >= 0; i--) {
+        for(int j = i; j < A.size(); j++) {
+            string curr = A.substr(i, j - i + 1);
+            if(st.find(curr) != st.end() && dp[j + 1] == 1) {
+                dp[i] = 1;
                 break;
             }
         }
-    }
-    return temp[0];
+    }    
+    return dp[0];
+    // return f(A, st, 0, dp);
 }
 
