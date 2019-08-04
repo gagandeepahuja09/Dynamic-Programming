@@ -1,44 +1,43 @@
-pair<long long, long long> parenthesize(vector<vector<pair<long long, long long>>>& dp, 
-string s, int start, int end) {
-    if(start == end) {
-        if(s[start] == 'T')
-            return dp[start][end] = {1ll, 0ll};
-        else if(s[start] == 'F')
-            return dp[start][end] = {0ll, 1ll};
+#define MOD 1003
+
+pair<int, int> f(string s, int i, int j, vector<vector<pair<int, int>>>& dp) {
+    if(j == i) {
+        if(s[j] == 'T')
+            return { 1, 0 };
+        return { 0, 1 };    
     }
-    if(dp[start][end].first != -1ll || dp[start][end].second != -1ll)
-        return dp[start][end];
-    pair<long, long> p = {0, 0};
-    for(int k = start + 1 ; k <= end - 1 ; k++) {
-        if(s[k] == '&') {
-            p.first += (parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).first);
-            p.second += ((parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).second) + 
-            (parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).second) + 
-            (parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).first));
-        }
-        else if(s[k] == '|') {
-            p.first += ((parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).first) + 
-            (parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).second) + 
-            (parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).first));
-            p.second += (parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).second);
-        }
-        else if(s[k] == '^') {
-            p.first += ((parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).second) + 
-            (parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).first));
-            p.second += ((parenthesize(dp, s, start, k-1).first * parenthesize(dp, s, k+1, end).first) + 
-            (parenthesize(dp, s, start, k-1).second * parenthesize(dp, s, k+1, end).second));
+    pair<int, int> p = { -1, -1 };
+    if(dp[i][j] != p) {
+        return dp[i][j];
+    }
+    pair<int, int> ret = { 0, 0 };
+    for(int k = i; k <= j; k++) {
+        if(s[k] == '&' || s[k] == '^' || s[k] == '|') {
+            auto l = f(s, i, k - 1, dp), r = f(s, k + 1, j, dp);
+            if(s[k] == '&') {
+                ret.first += l.first * r.first;
+                ret.second += l.second * r.first
+                + r.second * (l.first + l.second);
+            }
+            else if(s[k] == '|') {
+                ret.second += l.second * r.second;
+                ret.first += l.first * (r.first + r.second)
+                + r.first * l.second;
+            }
+            else if(s[k] == '^') {
+                ret.first += l.second * r.first + r.second * l.first;
+                ret.second += l.first * r.first
+                + r.second * l.second;
+            }
+            ret.first %= MOD; ret.second %= MOD;
         }
     }
- 
-    p.first %= 1003;
-    p.second %= 1003;
-    return dp[start][end] = p;
+    return dp[i][j] = ret;
 }
 
 int Solution::cnttrue(string A) {
     int n = A.size();
-    vector<vector<pair<long long, long long>>> dp(n, vector<pair<long long, long long>>(
-            n, {-1ll, -1ll}));
-    return (int)parenthesize(dp, A, 0, n-1).first;
+    vector<vector<pair<int, int>>> dp(n, vector<pair<int, int>>(n, { -1, -1 }));
+    return f(A, 0, A.size() - 1, dp).first;
 }
 
