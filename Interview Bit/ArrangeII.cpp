@@ -1,5 +1,3 @@
-#define ll long long int
-
 int f(string s, int i, int k, vector<vector<int>>& dp) {
     if(i == s.size()) {
         return k == 0 ? 0 : 1e9;
