@@ -80,7 +80,7 @@ int rec(int n, int h){
         x=i-1;
         y=n-x-1;
         int sum1=0,sum2=0,ret1=0;
-        for(int j=0; j<=h-2; j++){
+        for(int j=0; j<=h-2; j++) {
             add(sum1, rec(x, j));
             add(sum2, rec(y, j));
         }
