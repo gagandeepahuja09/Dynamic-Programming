@@ -25,3 +25,37 @@ public:
         return memo[n][k];
     }
 };
+
+class Solution {
+public:
+    double dp[101][101];
+    double f(vector<double>& sum, int i, int K) {
+        if(K == 1) {
+            int j = sum.size() - 1;
+            dp[i][K] = (sum[j] - (i == 0 ? 0 : sum[i - 1])) / (double)(j - i + 1);
+            return dp[i][K];
+        }
+        if(dp[i][K] != -1.0)
+            return dp[i][K];
+        double ans = 0;
+        for(int j = i; j + K <= sum.size(); j++) {
+            double avg = (sum[j] - (i == 0 ? 0 : sum[i - 1])) / (double)(j - i + 1);
+            ans = max(ans, avg + f(sum, j + 1, K - 1));
+        }
+        return dp[i][K] = ans;
+    }
+    
+    double largestSumOfAverages(vector<int>& A, int K) {
+        int n = A.size();
+        vector<double> sum(n, 0);
+        for(int i = 0; i <= 100; i++) {
+            for(int j = 0; j <= 100; j++) {
+                dp[i][j] = -1.0;
+            }
+        }
+        sum[0] = A[0];
+        for(int i = 1; i < A.size(); i++)
+            sum[i] = A[i] + sum[i - 1];
+        return f(sum, 0, K);
+    }
+};
