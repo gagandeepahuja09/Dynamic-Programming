@@ -1,34 +1,27 @@
 class Solution {
 public:
     int dp[1 << 20];
-    
-    int dfs(int M, int T, int k) {
-        if(T <= 0)
+    int dfs(int mask, int mx, int total) {
+        if(total <= 0)
             return false;
-        if(dp[k] != -1)
-            return dp[k];
-        // try all available numbers
-        for(int i = 0; i < M; i++) {
-            // if i + 1 is available and my opponent can't win after i picked ==> i win
-            if(((k & (1 << i)) == 0) && !dfs(M, T - i - 1, k | (1 << i))) {
-                return dp[k] = 1;
+        if(dp[mask] != -1)
+            return dp[mask];
+        for(int i = 0; i < mx; i++) {
+            if((mask & (1 << i)) == 0) {
+                if(!dfs(mask | (1 << i), mx, total - i - 1))
+                    return dp[mask] = true;
             }
         }
-        return dp[k] = 0;
+        return dp[mask] = false;
     }
     
-    bool canIWin(int M, int T) {
+    bool canIWin(int mx, int total) {
         memset(dp, -1, sizeof dp);
-        int sum = (M * (M + 1)) / 2;
-        if(T < 2)
+        if(total == 0)
             return true;
-        // Nobody can win
-        if(sum < T)
+        int maxSum = mx * (mx + 1) / 2;
+        if(maxSum < total)
             return false;
-        if(sum == T)
-            return M % 2;
-        
-        // initial state total = T, k = 0; no one picked
-        return dfs(M, T, 0);
+        return dfs(0, mx, total);    
     }
 };
